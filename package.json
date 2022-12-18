@@ -1,10 +1,16 @@
 {
   "name": "svg-captcha",
+<<<<<<< HEAD
   "version": "3.0.0",
   "description": "generate svg captcha in node.js.",
+=======
+  "version": "1.4.0",
+  "description": "generate svg captcha in node.js or express.js",
+>>>>>>> 1.x
   "main": "index.js",
   "scripts": {
-    "test": "node test.js"
+    "test": "jest",
+    "lint": "xo"
   },
   "repository": {
     "type": "git",
@@ -19,8 +25,15 @@
   ],
   "author": {
     "name": "Weilin Shi",
+<<<<<<< HEAD
     "email": "934587911@qq.com",
     "url": "http://steambap.github.io"
+=======
+    "email": "934587911@qq.com"
+  },
+  "engines": {
+    "node": ">=4.x"
+>>>>>>> 1.x
   },
   "maintainers": [
     {
@@ -34,6 +47,7 @@
   },
   "homepage": "https://github.com/lemonce/svg-captcha/blob/master/README.md",
   "dependencies": {
+<<<<<<< HEAD
     "opentype.js": "^0.11.0",
     "randexp": "^0.5.3"
   },
@@ -41,4 +55,31 @@
     "karma": "^3.1.1",
     "koa": "^2.6.1"
   }
+=======
+    "opentype.js": "^0.7.3"
+  },
+  "devDependencies": {
+    "jest": "^21.1.0",
+    "jest-environment-node-debug": "^2.0.0",
+    "xo": "^0.18.2"
+  },
+  "xo": {
+    "esnext": true,
+    "envs": [
+      "jest"
+    ],
+    "rules": {
+      "linebreak-style": [
+        0
+      ]
+    }
+  },
+  "typings": "index.d.ts",
+  "files": [
+    "fonts/*",
+    "lib/*",
+    "index.d.ts",
+    "*.md"
+  ]
+>>>>>>> 1.x
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const Randexp = require('randexp');
 const path = require('path');
 
@@ -124,3 +125,6 @@ function DEFAULT_GENERATOR() {
 function DEFAULT_VALIDATOR(testVal, data) {
 	return testVal === data;
 }
+=======
+module.exports = require('./lib');
+>>>>>>> 1.x
