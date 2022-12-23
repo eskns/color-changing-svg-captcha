@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 /**
  * config captcha generation options
  */
@@ -118,4 +116,3 @@ export const options: ConfigObject;
  * @return {string}
  */
 export function randomText(size: number): string;
->>>>>>> 1.x
