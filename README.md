@@ -43,9 +43,9 @@ npm install eskns/color-changing-svg-captcha
 const svgCaptcha = require('@eskns/color-changing-svg-captcha');
 
 app.get('/getCaptcha', function (req, res) {
-	const {text, data} = svgCaptcha.create();
-	req.session.captcha = text;
-	// data is an object with keys width, height and paths	
+    const {text, data} = svgCaptcha.create();
+    req.session.captcha = text;
+    // data is an object with keys width, height and paths	
     res.json(data);
 });
 
