@@ -1,8 +1,9 @@
+# examples
 
-![Example 1](image1.png)
-![Example 2](./image2.png)
-![Example 3](/image3.png)
-![Example 4](/image4.png)
+![Example 1](media/image1.png)
+![Example 2](media/image2.png)
+![Example 3](media/image3.png)
+![Example 4](media/image4.png)
 
 > Generate svg captcha in node.js and randomly color the svg per key stroke including backspace or delete.
 > Results in better user-experience and better captcha acceptance at the server.
