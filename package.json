@@ -1,6 +1,6 @@
 {
   "name": "@eskns/color-changing-svg-captcha",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "generate svg captcha in node.js and dynamically color it in the browser for each keystroke.",
   "main": "index.js",
   "scripts": {
