@@ -1,3 +1,9 @@
+<div align="center">
+[](image1.png)
+[](image2.png)
+[](image3.png)
+[](image4.png)
+
 > Generate svg captcha in node.js and randomly color the svg per key stroke including backspace or delete.
 > Results in better user-experience and better captcha acceptance at the server.
 > Uses crypto modules instead of Math.random for better randomness.
