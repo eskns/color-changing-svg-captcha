@@ -1,123 +1,117 @@
-![svg-captcha](media/header.png)
+> Generate svg captcha in node.js and randomly color the svg per key stroke including backspace or delete.
+> Results in better user-experience and better captcha acceptance at the server.
+> Uses crypto modules instead of Math.random for better randomness.
 
-<div align="center">
+[svg-captcha](https://github.com/produck/svg-captcha) is an excellent package that is recommended by [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Nodejs_Security_Cheat_Sheet.html#take-precautions-against-brute-forcing) 
+as part of protecting a web server against brute forcing. We started with a fork of svg-captcha and improved in two respects.
 
-[![Build Status](https://img.shields.io/travis/lemonce/svg-captcha/master.svg?style=flat-square)](https://travis-ci.org/lemonce/svg-captcha)
-[![NPM Version](https://img.shields.io/npm/v/svg-captcha.svg?style=flat-square)](https://www.npmjs.com/package/svg-captcha)
-[![NPM Downloads](https://img.shields.io/npm/dm/svg-captcha.svg?style=flat-square)](https://www.npmjs.com/package/svg-captcha)
+1. We noticed that svg-captcha uses Math.random. It is theoretically possible for an actor 
+with distributed resources to learn to predict the outcome of Math.random which would defeat 
+the purpose of having a captcha in a form. So, we replaced Math.random with functions from the crypto module.
 
-</div>
-
-> generate svg captcha in node.js
-
-## Translations
-[中文](README_CN.md)
-
-## useful if you
-
-- cannot or do not want to use google recaptcha
-- have issue with install c++ addon
+2. We noticed that svg-captcha generates a complete svg including colors and sends it as a string to the browser. Instead, 
+in our module, we send the paths that svg-captcha generates as a JSON array and generate a svg with random colors for the paths and background 
+per key stroke including backspace and delete. The idea is that some combination of background and foreground colors would 
+make the text more readable and thus would result in a better user experience. An end-user can press any character 
+and erase it with backspace or delete any number of times until they can read the captcha clearly and then enter it.
+Thus, it minimizes the chance of human users submitting incorrect results to the server. By the same token, when you 
+receice too many errors from the same client at the server, it may not be a human submitting the captcha texts.
 
 ## install
+
+NOTE: The following github package will be installed from npm.pkg.github.com registry. So, there should not be a leading @ while installing. 
+However, the package will be installed in node_modules/@eskns/color-changing-svg-captcha. 
+So, while importing it you should use a leading @. Please see below. 
+
 ```
-npm install --save svg-captcha
+npm install eskns/color-changing-svg-captcha
 ```
 
 ## usage
-```Javascript
-var svgCaptcha = require('svg-captcha');
 
-var captcha = svgCaptcha.create();
-console.log(captcha);
-// {data: '<svg.../svg>', text: 'abcd'}
-```
-with express
+### Server-side with express
 ```Javascript
-var svgCaptcha = require('svg-captcha');
+const svgCaptcha = require('@eskns/color-changing-svg-captcha');
 
-app.get('/captcha', function (req, res) {
-	var captcha = svgCaptcha.create();
-	req.session.captcha = captcha.text;
-	
-	res.type('svg');
-	res.status(200).send(captcha.data);
+app.get('/getCaptcha', function (req, res) {
+	const {text, data} = svgCaptcha.create();
+	req.session.captcha = text;
+	// data is an object with keys width, height and paths	
+    res.json(data);
 });
+
+app.post('/postCaptcha', function(req, res) {
+	//handle post request
+})
 ```
+### Client-side with reactjs
+
+The code below shows how to render the svg using the width, height and paths obtained from the server with random colors.
+You need to use a form with a textbox for end-user to enter the captcha. Inside the form render the below svg component above the textbox.
+Store the user input in a useState variable in the form and update the variable using the onChange event handler for the textbox.
+This will cause the form to re-render itself and in that process it will re-render the svg. You could also store the svg component 
+in a variable in the onChange event handler of the textbox and use that variable to re-render it in the form. 
+For a working example, click on 'Sign In' at [eskns.com](https://eskns.com) and enter some text in the 'Captcha Code' textbox.
+
+A full-fledged client implementation is coming soon.
+
+``` Javascript
+import React from 'react';
+import tw from '@eskns/styledwindcss';
+import styled from '@emotion/styled';
+
+function dec2hex (dec) {
+  return ('0' + dec.toString(16)).substr(-2)
+}
+
+function getRGB (len = 3) {
+  var arr = new Uint8Array(len)
+  window.crypto.getRandomValues(arr)
+  return `#${Array.from(arr).map(dec2hex).join('')}`;
+}
+
+const Svg = tw`inline hover:shadow focus:shadow active:shadow-md
+
+ ${styled.svg`
+  grid-row-start: ${props => props.row_start || "auto"};
+  grid-column: ${props => props.cols || "1 / -1"};
+`}
+`;
+
+export default function ShowSvg(props) {
+
+  const { height, width, paths } = props;
+  const vb = `0 0 ${width} ${height}`;
+
+  const svgPaths = paths.map(({d, fill}) => {
+    if(fill != "none") {
+      fill = getRGB();
+    }
+    return <path d={d} strokeWidth="1" fill={fill} stroke={getRGB()}/>
+  });
+
+  const fill = getRGB();
+
+  return (<Svg viewBox={vb} height={height} width={width}
+    onClick={props.handleClick} preserveAspectRatio="xMinYMin meet" >
+    <React.Fragment>
+    <rect width="100%" height="100%" fill={fill}/>
+    {svgPaths}
+    </React.Fragment>
+    </Svg> )
+}
+
+```
+
+The above code uses tailwindcss and @emotion/styled components to handle CSS in JavaScript. It uses our [styledwindcss](https://github.com/eskns/styledwindcss)
+module that allows you to use both tailwindcss and @emotion/styled for styling the same React component. Please read [Max Stoiber](https://mxstbr.com/thoughts/tailwind) to understand why you may want to do that.
 
 ## API
 
-#### `svgCaptcha.create(options)`  
-If no option is passed, you will get a random string of four characters and corresponding svg.  
-  
-* `size`: 4 // size of random string  
-* `ignoreChars`: '0o1i' // filter out some characters like 0o1i  
-* `noise`: 1 // number of noise lines  
-* `color`: true // characters will have distinct colors instead of grey, true if background option is set  
-* `background`: '#cc9966' // background color of the svg image  
+The API on the serverside is the same as the original svg-captcha. Some of the parameters like color and background are not used. 
 
-This function returns an object that has the following property:
-* `data`: string // svg path data
-* `text`: string // captcha text
-
-#### `svgCaptcha.createMathExpr(options)`  
-Similar to create api, you have the above options plus 3 additional:
-* `mathMin`: 1 // the minimum value the math expression can be
-* `mathMax`: 9 // the maximum value the math expression can be
-* `mathOperator`: + // The operator to use, `+`, `-` or `+-` (for random `+` or `-`)
-
-This function returns an object that has the following property:
-* `data`: string // svg of the math expression
-* `text`: string // the answer of the math expression
-
-#### `svgCaptcha.loadFont(url)`
-Load your own font and override the default font.
-* `url`: string // path to your font
-This api is a wrapper around loadFont api of opentype.js.  
-Your may need experiment around various options to make your own font accessible.  
-See the following api.
-
-#### `svgCaptcha.options`
-Gain access to global setting object. 
-It is used for create and createMathExpr api as the default options.  
-  
-In addition to size, noise, color, and background, you can also set the following property:
-* `width`: number // width of captcha
-* `height`: number // height of captcha
-* `fontSize`: number // captcha text size
-* `charPreset`: string // random character preset
-
-#### `svgCaptcha.randomText([size|options])`  
-return a random string.
-#### `svgCaptcha(text, options)`
-return a svg captcha based on text provided.  
-
-In pre 1.1.0 version you have to call these two functions,  
-now you can call create() to save some key strokes ;).
-
-## sample image
-default captcha image:
-
-![image](media/example.png)
-
-math expression image with color options:
-
-![image2](media/example-2.png)
-
-## why use svg?
-
-It does not require any c++ addon.  
-The result image is smaller than jpeg image.
-
-> This has to be a joke. /\<text.+\>;.+\<\/text\>/g.test...
-
-svg captcha uses opentype.js underneath, which means that there is no
-'&lt;text&gt;1234&lt;/text&gt;'.  
-You get
-'&lt;path fill="#444" d="M104.83 19.74L107.85 19.74L112 33.56L116.13 19.74L119.15 19.74L113.48 36.85...'  
-instead.  
-  
-Even though you can write a program that convert svg to png, svg captcha has done its job  
-—— make captcha recognition harder
+The original svg-captcha functions return an object with keys text and data both of which are of type string. In our case, the data
+we return is an object with keys width, height and paths.
 
 ## License
-[MIT](LICENSE.md)
+[BSD-Clause-3](LICENSE.md)
