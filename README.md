@@ -9,6 +9,8 @@
 > Results in better user-experience and better captcha acceptance at the server.
 > Uses crypto modules instead of Math.random for better randomness.
 
+# motivation
+
 [svg-captcha](https://github.com/produck/svg-captcha) is an excellent package that is recommended by [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Nodejs_Security_Cheat_Sheet.html#take-precautions-against-brute-forcing) 
 as part of protecting a web server against brute forcing. We started with a fork of svg-captcha and improved in two respects.
 
